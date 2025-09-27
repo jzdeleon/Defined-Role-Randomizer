@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Team Role Randomizer</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 40px;
+  background: #f0f4f8;
+}
+h1 {
+  margin-bottom: 20px;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #007acc;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background: #005fa3;
+}
+.slot {
+  font-size: 28px;
+  font-weight: bold;
+  height: 50px;
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #007acc;
+  border-radius: 10px;
+  background: white;
+  width: 300px;
+}
+.logo {
+  position: absolute;   /* take it out of normal flow */
+  top: 20px;            /* distance from the top */
+  right: 20px;          /* distance from the right */
+  width: 80px;          /* adjust size as needed */
+  height: auto;         /* keep aspect ratio */
+}
+.role-box {
+  margin-top: 30px;
+}
+label {
+  display: block;
+  margin: 20px;
+  font-size: 16px;
+}
+</style>
+</head>
+<body>
+<h1>Team Role Randomizer 🎰</h1>
+<p>Team members: Arend, Mike, Nav, Joanna, Joseph, Toby</p>
+
+<!-- Toggle for unique mode -->
+<label>
+  <input type="checkbox" id="uniqueMode">
+  Use unique assignments (no repeats until all used)
+</label>
+
+<button onclick="spinSelected('pm')">Assign Project Manager</button>
+<button onclick="spinSelected('others')">Assign Facilitator / Devil's Advocate / Time Keeper</button>
+<button onclick="spinSelected('all')">Assign All Roles</button>
+
+<div class="role-box">
+  <h2>Assignments</h2>
+  <div><strong>Project Manager:</strong> <span id="pm" class="slot">---</span></div>
+  <div><strong>Facilitator:</strong> <span id="fac" class="slot">---</span></div>
+  <div><strong>Devil's Advocate:</strong> <span id="da" class="slot">---</span></div>
+  <div><strong>Time Keeper:</strong> <span id="tk" class="slot">---</span></div>
+</div>
+
+<img src="logo.png" alt="Team Logo" class="logo">
+
+<script>
+const teamNames = ["Arend", "Mike", "Nav", "Joanna", "Joseph", "Toby"];
+
+// pool for unique mode
+let pool = [];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function getNextNameUnique() {
+  if (pool.length === 0) {
+    pool = shuffle([...teamNames]); // refill with fresh shuffle
+  }
+  return pool.pop(); // take one from the end
+}
+
+function spinSlot(element, names, delay, finalName) {
+  let i = 0;
+  let spins = 20 + Math.floor(Math.random() * 15);
+  let interval = setInterval(() => {
+    element.textContent = names[i % names.length];
+    i++;
+    if (i > spins) {
+      clearInterval(interval);
+      element.textContent = finalName;
+    }
+  }, delay);
+}
+
+function spinSelected(mode) {
+  let uniqueMode = document.getElementById("uniqueMode").checked;
+
+  if (mode === 'pm' || mode === 'all') {
+    let pm = uniqueMode ? getNextNameUnique() : shuffle([...teamNames])[0];
+    spinSlot(document.getElementById("pm"), teamNames, 100, pm);
+  }
+
+  if (mode === 'others' || mode === 'all') {
+    if (uniqueMode) {
+      let fac = getNextNameUnique();
+      let da = getNextNameUnique();
+      let tk = getNextNameUnique();
+      spinSlot(document.getElementById("fac"), teamNames, 100, fac);
+      spinSlot(document.getElementById("da"), teamNames, 100, da);
+      spinSlot(document.getElementById("tk"), teamNames, 100, tk);
+    } else {
+      let shuffledOthers = shuffle([...teamNames]);
+      let fac = shuffledOthers[0];
+      let da = shuffledOthers[1];
+      let tk = shuffledOthers[2];
+      spinSlot(document.getElementById("fac"), teamNames, 100, fac);
+      spinSlot(document.getElementById("da"), teamNames, 100, da);
+      spinSlot(document.getElementById("tk"), teamNames, 100, tk);
+    }
+  }
+}
+</script>
+</body>
+</html>
